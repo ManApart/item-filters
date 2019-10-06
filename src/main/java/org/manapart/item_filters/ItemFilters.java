@@ -2,8 +2,8 @@ package org.manapart.item_filters;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.Teleporter;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,29 +19,40 @@ public class ItemFilters {
     public static final String MODID = "item_filters";
     public static final ItemFilterBlock itemFilterBlock = createBlock();
     public static final ItemFilterItem itemFilterItem = createItem(itemFilterBlock);
+    public static final ItemFilterEntity itemFilterEntity = new ItemFilterEntity();
+    public static final TileEntityType<ItemFilterEntity> tileType = createEntityType(itemFilterBlock);
     public static Item itemFiltersIcon = createIcon();
 
     public ItemFilters() {
         MinecraftForge.EVENT_BUS.register(this);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerBlocks);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerItems);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerEntities);
     }
 
     @SubscribeEvent
     public void registerBlocks(RegistryEvent.Register<Block> event) {
-        System.out.println("Registering blocks");
         if (!ForgeRegistries.BLOCKS.containsKey(itemFilterBlock.getRegistryName())) {
+            System.out.println("Registering blocks");
             ForgeRegistries.BLOCKS.register(itemFilterBlock);
         }
     }
 
     @SubscribeEvent
     public void registerItems(RegistryEvent.Register<Item> event) {
-        System.out.println("Registering items");
         if (!ForgeRegistries.ITEMS.containsKey(itemFilterItem.getRegistryName())) {
+            System.out.println("Registering items");
             ForgeRegistries.ITEMS.register(itemFilterItem);
             ForgeRegistries.ITEMS.register(itemFiltersIcon);
         }
+    }
+
+    @SubscribeEvent
+    public void registerEntities(RegistryEvent.Register<TileEntityType<?>> event) {
+//        if (!ForgeRegistries.TILE_ENTITIES.containsKey(tileType.getRegistryName())) {
+            System.out.println("Registering TileEntityTypes");
+            ForgeRegistries.TILE_ENTITIES.register(tileType);
+//        }
     }
 
     private static Item createIcon() {
@@ -62,5 +73,11 @@ public class ItemFilters {
         return filter;
     }
 
+    private static TileEntityType<ItemFilterEntity> createEntityType(ItemFilterBlock block) {
+        TileEntityType.Builder<ItemFilterEntity> builder = TileEntityType.Builder.create(ItemFilterEntity::new, itemFilterBlock);
+        TileEntityType<ItemFilterEntity> tileType = builder.build(null);
+        tileType.setRegistryName(MODID, "item_filter");
+        return tileType;
+    }
 
 }
