@@ -11,6 +11,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponent;
 
@@ -20,7 +21,6 @@ import java.util.stream.IntStream;
 
 
 public class ItemFilterEntity extends HopperTileEntity {
-    private NonNullList<ItemStack> inventory = NonNullList.withSize(5, ItemStack.EMPTY);
     private int transferCooldown = -1;
     private long tickedGameTime;
 
@@ -50,11 +50,99 @@ public class ItemFilterEntity extends HopperTileEntity {
             this.tickedGameTime = this.world.getGameTime();
             if (!this.isOnTransferCooldown()) {
                 this.setTransferCooldown(0);
-                this.updateHopper(() -> pullItems(this));
+//                this.updateHopper(() -> pullItems(this));
+                filterItems();
             }
 
         }
     }
+
+    private void filterItems() {
+        pullItems();
+        pushItems();
+    }
+
+    private void pullItems() {
+        if (!this.isFull()) {
+            IInventory sourceInventory = getSourceInventory(this);
+            if (sourceInventory != null) {
+                for (ItemStack item : this.getItems()) {
+                    attemptToPull(item, sourceInventory);
+                }
+            }
+        }
+    }
+
+    private void attemptToPull(ItemStack item, IInventory sourceInventory) {
+        if (!item.isEmpty() && item.isStackable()) {
+            ResourceLocation matchName = item.getItem().getRegistryName();
+            int desiredItemCount = item.getMaxStackSize() - item.getCount();
+            if (desiredItemCount > 0) {
+                //Transfer first stack that matches this item
+                for (int i = 0; i < sourceInventory.getSizeInventory(); i++) {
+                    ItemStack sourceItem = sourceInventory.getStackInSlot(i);
+                    if (!sourceItem.isEmpty() && matchName.equals(sourceItem.getItem().getRegistryName())) {
+                        int itemCount = Math.min(desiredItemCount, sourceItem.getCount());
+                        item.setCount(item.getCount() + itemCount);
+                        sourceItem.setCount(sourceItem.getCount() - itemCount);
+                        if (sourceItem.isEmpty()) {
+                            sourceInventory.markDirty();
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private void pushItems() {
+        if (!this.isEmpty()) {
+            IInventory destinationInventory = this.getInventoryForHopperTransfer();
+            if (destinationInventory != null) {
+                for (ItemStack item : this.getItems()) {
+                    attemptToPush(item, destinationInventory);
+                }
+            }
+        }
+
+    }
+
+
+    private void attemptToPush(ItemStack item, IInventory destinationInventory) {
+        if (!item.isEmpty() && item.isStackable() && item.getCount() > 1) {
+            ResourceLocation matchName = item.getItem().getRegistryName();
+            //Transfer first stack that matches this item
+            for (int i = 0; i < destinationInventory.getSizeInventory(); i++) {
+                ItemStack destItem = destinationInventory.getStackInSlot(i);
+                if (destItem.isEmpty() || matchName.equals(destItem.getItem().getRegistryName())) {
+                    int itemCount = Math.min(destItem.getMaxStackSize() - destItem.getCount(), item.getCount()-1);
+                    if (itemCount > 0) {
+                        if (destItem.isEmpty()){
+                            destinationInventory.setInventorySlotContents(i, item.copy());
+                            markDirty();
+                            destItem = destinationInventory.getStackInSlot(i);
+                        }
+
+                        destItem.setCount(destItem.getCount() + itemCount);
+                        item.setCount(item.getCount() - itemCount);
+                        if (destItem.isEmpty()) {
+                            destinationInventory.markDirty();
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+
+//    private boolean isInventoryFull(IInventory inventoryIn) {
+//        inventoryIn.getSizeInventory()
+//        return func_213972_a(inventoryIn, side).allMatch((p_213970_1_) -> {
+//            ItemStack itemstack = inventoryIn.getStackInSlot(p_213970_1_);
+//            return itemstack.getCount() >= itemstack.getMaxStackSize();
+//        });
+//    }
 
     private boolean updateHopper(Supplier<Boolean> p_200109_1_) {
         if (this.world != null && !this.world.isRemote) {
@@ -82,7 +170,7 @@ public class ItemFilterEntity extends HopperTileEntity {
     }
 
     private boolean isInventoryEmpty() {
-        for (ItemStack itemstack : this.inventory) {
+        for (ItemStack itemstack : this.getItems()) {
             if (!itemstack.isEmpty()) {
                 return false;
             }
@@ -96,7 +184,7 @@ public class ItemFilterEntity extends HopperTileEntity {
     }
 
     private boolean isFull() {
-        for (ItemStack itemstack : this.inventory) {
+        for (ItemStack itemstack : this.getItems()) {
             if (itemstack.isEmpty() || itemstack.getCount() != itemstack.getMaxStackSize()) {
                 return false;
             }
@@ -104,6 +192,7 @@ public class ItemFilterEntity extends HopperTileEntity {
 
         return true;
     }
+
 
     private boolean isInventoryFull(IInventory inventoryIn, Direction side) {
         return func_213972_a(inventoryIn, side).allMatch((p_213970_1_) -> {
