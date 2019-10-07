@@ -36,7 +36,6 @@ public class ItemFilterBlock extends HopperBlock {
                 player.openContainer((ItemFilterEntity) tileentity);
                 player.addStat(Stats.INSPECT_HOPPER);
             }
-
             return true;
         }
     }

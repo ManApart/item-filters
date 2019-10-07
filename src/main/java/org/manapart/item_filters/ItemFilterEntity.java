@@ -1,34 +1,30 @@
 package org.manapart.item_filters;
 
 import net.minecraft.block.HopperBlock;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.HopperContainer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.HopperTileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 import javax.annotation.Nullable;
 
 
 public class ItemFilterEntity extends HopperTileEntity {
+//public class ItemFilterEntity extends LockableLootTileEntity implements IHopper, ITickableTileEntity {
+
     private int transferCooldown = -1;
-    private long tickedGameTime;
 
-    public ItemFilterEntity() {
-        setCustomName(new TextComponent() {
-            @Override
-            public String getUnformattedComponentText() {
-                return "Item Filter";
-            }
-
-            @Override
-            public ITextComponent shallowCopy() {
-                return null;
-            }
-        });
+    @Override
+    public void read(CompoundNBT compound) {
+        super.read(compound);
     }
 
     @Override
@@ -40,13 +36,17 @@ public class ItemFilterEntity extends HopperTileEntity {
     public void tick() {
         if (this.world != null && !this.world.isRemote) {
             --this.transferCooldown;
-            this.tickedGameTime = this.world.getGameTime();
             if (!this.isOnTransferCooldown()) {
                 this.setTransferCooldown(0);
                 filterItems();
             }
 
         }
+    }
+
+    @Override
+    protected ITextComponent getDefaultName() {
+        return new StringTextComponent("Item Filter");
     }
 
     private void filterItems() {
@@ -139,6 +139,10 @@ public class ItemFilterEntity extends HopperTileEntity {
     private boolean isOnTransferCooldown() {
         return this.transferCooldown > 0;
     }
+
+//    protected Container createMenu(int p_213906_1_, PlayerInventory p_213906_2_) {
+//        return new HopperContainer(p_213906_1_, p_213906_2_, this);
+//    }
 
     @Nullable
     private IInventory getInventoryForHopperTransfer() {
