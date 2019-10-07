@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "item_filters:filter_block"
+    "item_filters:filter_block",
+    "item_filters:filter_block_corner"
   ]
 }

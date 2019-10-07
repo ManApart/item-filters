@@ -1,0 +1,9 @@
+{
+  "variants": {
+    "facing=down": { "model": "item_filters:block/filter_block_corner" },
+    "facing=north": { "model": "item_filters:block/filter_block_corner"},
+    "facing=south": { "model": "item_filters:block/filter_block_corner", "y": 180 },
+    "facing=west": { "model": "item_filters:block/filter_block_corner", "y": 270 },
+    "facing=east": { "model": "item_filters:block/filter_block_corner", "y": 90 }
+  }
+}

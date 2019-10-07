@@ -1,3 +1,4 @@
 {
-  "block.item_filters.filter_block": "Item Filter"
+  "block.item_filters.filter_block": "Item Filter",
+  "block.item_filters.filter_block_corner": "Item Filter Corner"
 }

@@ -18,8 +18,9 @@ public class ItemFilters {
 
     public static final String MODID = "item_filters";
     public static final ItemFilterBlock itemFilterBlock = createBlock();
+    public static final ItemFilterCornerBlock itemFilterCornerBlock = createCornerBlock();
     public static final ItemFilterItem itemFilterItem = createItem(itemFilterBlock);
-    public static final ItemFilterEntity itemFilterEntity = new ItemFilterEntity();
+    public static final ItemFilterCornerItem itemFilterCornerItem = createCornerItem(itemFilterCornerBlock);
     public static final TileEntityType<ItemFilterEntity> tileType = createEntityType(itemFilterBlock);
     public static Item itemFiltersIcon = createIcon();
 
@@ -35,6 +36,7 @@ public class ItemFilters {
         if (!ForgeRegistries.BLOCKS.containsKey(itemFilterBlock.getRegistryName())) {
             System.out.println("Registering blocks");
             ForgeRegistries.BLOCKS.register(itemFilterBlock);
+            ForgeRegistries.BLOCKS.register(itemFilterCornerBlock);
         }
     }
 
@@ -43,6 +45,7 @@ public class ItemFilters {
         if (!ForgeRegistries.ITEMS.containsKey(itemFilterItem.getRegistryName())) {
             System.out.println("Registering items");
             ForgeRegistries.ITEMS.register(itemFilterItem);
+            ForgeRegistries.ITEMS.register(itemFilterCornerItem);
             ForgeRegistries.ITEMS.register(itemFiltersIcon);
         }
     }
@@ -67,14 +70,26 @@ public class ItemFilters {
         return filter;
     }
 
+    private static ItemFilterCornerBlock createCornerBlock() {
+        ItemFilterCornerBlock filter = new ItemFilterCornerBlock();
+        filter.setRegistryName(new ResourceLocation(MODID + ":filter_block_corner"));
+        return filter;
+    }
+
     private static ItemFilterItem createItem(ItemFilterBlock block) {
         ItemFilterItem filter = new ItemFilterItem(block);
         filter.setRegistryName(new ResourceLocation(MODID + ":filter_item"));
         return filter;
     }
 
+    private static ItemFilterCornerItem createCornerItem(ItemFilterCornerBlock block) {
+        ItemFilterCornerItem filter = new ItemFilterCornerItem(block);
+        filter.setRegistryName(new ResourceLocation(MODID + ":filter_item_corner"));
+        return filter;
+    }
+
     private static TileEntityType<ItemFilterEntity> createEntityType(ItemFilterBlock block) {
-        TileEntityType.Builder<ItemFilterEntity> builder = TileEntityType.Builder.create(ItemFilterEntity::new, itemFilterBlock);
+        TileEntityType.Builder<ItemFilterEntity> builder = TileEntityType.Builder.create(ItemFilterEntity::new, itemFilterBlock, itemFilterCornerBlock);
         TileEntityType<ItemFilterEntity> tileType = builder.build(null);
         tileType.setRegistryName(MODID, "item_filter");
         return tileType;

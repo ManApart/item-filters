@@ -22,8 +22,9 @@ public class ItemFilterBlock extends HopperBlock {
         super(Block.Properties.create(Material.IRON, MaterialColor.BLUE).hardnessAndResistance(4f).sound(SoundType.METAL));
     }
 
+    @Override
     public TileEntity createNewTileEntity(IBlockReader worldIn) {
-        return new ItemFilterEntity();
+        return new ItemFilterEntity(false);
     }
 
 

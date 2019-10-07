@@ -1,10 +1,7 @@
 package org.manapart.item_filters;
 
 import net.minecraft.block.HopperBlock;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.HopperContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.HopperTileEntity;
@@ -18,9 +15,16 @@ import javax.annotation.Nullable;
 
 
 public class ItemFilterEntity extends HopperTileEntity {
-//public class ItemFilterEntity extends LockableLootTileEntity implements IHopper, ITickableTileEntity {
 
     private int transferCooldown = -1;
+    private boolean isCorner = false;
+
+    public ItemFilterEntity() {
+    }
+
+    public ItemFilterEntity(boolean isCorner) {
+        this.isCorner = isCorner;
+    }
 
     @Override
     public void read(CompoundNBT compound) {
@@ -56,7 +60,7 @@ public class ItemFilterEntity extends HopperTileEntity {
 
     private void pullItems() {
         if (!this.isFull()) {
-            IInventory sourceInventory = getSourceInventory(this);
+            IInventory sourceInventory = this.getInventoryToPullItemsFrom();
             if (sourceInventory != null) {
                 for (ItemStack item : this.getItems()) {
                     attemptToPull(item, sourceInventory);
@@ -67,7 +71,7 @@ public class ItemFilterEntity extends HopperTileEntity {
 
     private void pushItems() {
         if (!this.isEmpty()) {
-            IInventory destinationInventory = this.getInventoryForHopperTransfer();
+            IInventory destinationInventory = this.getInventoryToPushItemsTo();
             if (destinationInventory != null) {
                 for (ItemStack item : this.getItems()) {
                     attemptToPush(item, destinationInventory);
@@ -145,8 +149,20 @@ public class ItemFilterEntity extends HopperTileEntity {
 //    }
 
     @Nullable
-    private IInventory getInventoryForHopperTransfer() {
+    private IInventory getInventoryToPushItemsTo() {
         Direction direction = this.getBlockState().get(HopperBlock.FACING);
+        if (isCorner) {
+            direction = Direction.DOWN;
+        }
+        return getInventoryAtPosition(this.getWorld(), this.pos.offset(direction));
+    }
+
+    @Nullable
+    private IInventory getInventoryToPullItemsFrom() {
+        Direction direction = this.getBlockState().get(HopperBlock.FACING).getOpposite();
+        if (isCorner) {
+            direction = direction.getOpposite();
+        }
         return getInventoryAtPosition(this.getWorld(), this.pos.offset(direction));
     }
 
