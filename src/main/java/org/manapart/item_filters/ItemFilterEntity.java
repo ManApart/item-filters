@@ -1,12 +1,15 @@
 package org.manapart.item_filters;
 
+import afu.org.checkerframework.checker.oigj.qual.O;
 import net.minecraft.block.HopperBlock;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.HopperTileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -29,6 +32,15 @@ public class ItemFilterEntity extends HopperTileEntity {
     @Override
     public void read(CompoundNBT compound) {
         super.read(compound);
+        this.isCorner = compound.getBoolean("IsCorner");
+    }
+
+    @Override
+    public CompoundNBT write(CompoundNBT compound) {
+        super.write(compound);
+
+        compound.putBoolean("IsCorner", this.isCorner);
+        return compound;
     }
 
     @Override

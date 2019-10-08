@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "item_filters:item_filter"
+          "name": "item_filters:filter_item"
         }
       ],
       "conditions": [
