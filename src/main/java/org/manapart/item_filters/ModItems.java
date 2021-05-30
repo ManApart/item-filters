@@ -12,7 +12,7 @@ import static org.manapart.item_filters.ItemFilters.*;
 public class ModItems {
 
     @SubscribeEvent
-    public void registerItems(RegistryEvent.Register<Item> event) {
+    public static void registerItems(RegistryEvent.Register<Item> event) {
         if (!ForgeRegistries.ITEMS.containsKey(itemFilterItem.getRegistryName())) {
             ForgeRegistries.ITEMS.register(itemFilterItem);
             ForgeRegistries.ITEMS.register(itemFilterCornerItem);

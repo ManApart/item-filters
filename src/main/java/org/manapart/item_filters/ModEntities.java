@@ -12,7 +12,7 @@ import static org.manapart.item_filters.ItemFilters.tileType;
 public class ModEntities {
 
     @SubscribeEvent
-    public void registerEntities(RegistryEvent.Register<TileEntityType<?>> event) {
+    public static void registerEntities(RegistryEvent.Register<TileEntityType<?>> event) {
 //        if (!ForgeRegistries.TILE_ENTITIES.containsKey(tileType.getRegistryName())) {
         ForgeRegistries.TILE_ENTITIES.register(tileType);
 //        }

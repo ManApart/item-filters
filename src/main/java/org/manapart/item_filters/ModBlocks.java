@@ -13,7 +13,7 @@ import static org.manapart.item_filters.ItemFilters.itemFilterCornerBlock;
 public class ModBlocks {
 
     @SubscribeEvent
-    public void registerBlocks(RegistryEvent.Register<Block> event) {
+    public static void registerBlocks(RegistryEvent.Register<Block> event) {
         if (!ForgeRegistries.BLOCKS.containsKey(itemFilterBlock.getRegistryName())) {
             ForgeRegistries.BLOCKS.register(itemFilterBlock);
             ForgeRegistries.BLOCKS.register(itemFilterCornerBlock);
