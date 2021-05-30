@@ -1,9 +1,6 @@
 package org.manapart.item_filters;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HopperBlock;
-import net.minecraft.block.SoundType;
+import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.entity.Entity;
@@ -17,49 +14,60 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ToolType;
+
+import javax.annotation.Nullable;
 
 public class ItemFilterBlock extends HopperBlock {
     public ItemFilterBlock() {
-        super(Block.Properties.create(Material.IRON, MaterialColor.BLUE).hardnessAndResistance(4f).sound(SoundType.METAL));
+        super(createProps());
+    }
+
+    private static AbstractBlock.Properties createProps() {
+        Material padMat = new Material.Builder(MaterialColor.COLOR_BLUE).build();
+        AbstractBlock.Properties props = AbstractBlock.Properties.of(padMat);
+        props.requiresCorrectToolForDrops();
+        props.harvestTool(ToolType.PICKAXE);
+        props.sound(SoundType.METAL);
+        props.strength(4);
+        return props;
     }
 
     @Override
-    public TileEntity createNewTileEntity(IBlockReader worldIn) {
+    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return new ItemFilterEntity(false);
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
-        if (worldIn.isRemote) {
-            return ActionResultType.PASS;
-        } else {
-            TileEntity tileentity = worldIn.getTileEntity(pos);
+    public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+        if (!world.isClientSide) {
+            TileEntity tileentity = world.getBlockEntity(pos);
             if (tileentity instanceof ItemFilterEntity) {
-                player.openContainer((ItemFilterEntity) tileentity);
-                player.addStat(Stats.INSPECT_HOPPER);
+                player.openMenu((ItemFilterEntity) tileentity);
+                player.awardStat(Stats.INSPECT_HOPPER);
             }
-            return ActionResultType.PASS;
         }
+        return ActionResultType.PASS;
     }
 
-    public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+    @Override
+    public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.getBlock() != newState.getBlock()) {
-            TileEntity tileentity = worldIn.getTileEntity(pos);
+            TileEntity tileentity = world.getBlockEntity(pos);
             if (tileentity instanceof ItemFilterEntity) {
-                InventoryHelper.dropInventoryItems(worldIn, pos, (ItemFilterEntity) tileentity);
-                worldIn.updateComparatorOutputLevel(pos, this);
+                InventoryHelper.dropContents(world, pos, (ItemFilterEntity) tileentity);
+//                worldIn.updateComparatorOutputLevel(pos, this);
             }
 
-            super.onReplaced(state, worldIn, pos, newState, isMoving);
+            super.onRemove(state, world, pos, newState, isMoving);
         }
     }
 
-    public void onEntityCollision(BlockState state, World worldIn, BlockPos pos, Entity entityIn) {
-        TileEntity tileentity = worldIn.getTileEntity(pos);
-        if (tileentity instanceof ItemFilterEntity) {
-            ((ItemFilterEntity) tileentity).onEntityCollision(entityIn);
-        }
-
-    }
+//        public void onEntityCollision(BlockState state, World worldIn, BlockPos pos, Entity entityIn) {
+//        TileEntity tileentity = worldIn.getBlockEntity(pos);
+//        if (tileentity instanceof ItemFilterEntity) {
+//            ((ItemFilterEntity) tileentity).onEntityCollision(entityIn);
+//        }
+//    }
 
 }

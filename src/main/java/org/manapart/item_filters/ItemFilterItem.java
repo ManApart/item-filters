@@ -5,7 +5,7 @@ import net.minecraft.item.Item;
 
 public class ItemFilterItem extends BlockItem {
     public ItemFilterItem(ItemFilterBlock block) {
-        super(block, new Item.Properties().group(ItemGroupIF.instance));
+        super(block, new Item.Properties().tab(ItemGroupIF.instance));
     }
 
 }

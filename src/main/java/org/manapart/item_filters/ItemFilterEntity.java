@@ -1,5 +1,6 @@
 package org.manapart.item_filters;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.block.HopperBlock;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -27,15 +28,14 @@ public class ItemFilterEntity extends HopperTileEntity {
     }
 
     @Override
-    public void read(CompoundNBT compound) {
-        super.read(compound);
+    public void load(BlockState state, CompoundNBT compound) {
+        super.load(state, compound);
         this.isCorner = compound.getBoolean("IsCorner");
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
-        super.write(compound);
-
+    public CompoundNBT save(CompoundNBT compound) {
+        super.save(compound);
         compound.putBoolean("IsCorner", this.isCorner);
         return compound;
     }
@@ -47,14 +47,14 @@ public class ItemFilterEntity extends HopperTileEntity {
 
     @Override
     public void tick() {
-        if (this.world != null && !this.world.isRemote) {
+//        if (this.world != null && !this.world.isRemote) {
             --this.transferCooldown;
             if (!this.isOnTransferCooldown()) {
-                this.setTransferCooldown(0);
+                suckInItems(this);
+                setCooldown(0);
                 filterItems();
             }
-
-        }
+//        }
     }
 
     @Override
@@ -95,14 +95,14 @@ public class ItemFilterEntity extends HopperTileEntity {
             if (desiredItemCount > 0) {
                 ResourceLocation matchName = item.getItem().getRegistryName();
                 //Transfer first stack that matches this item
-                for (int i = 0; i < sourceInventory.getSizeInventory(); i++) {
-                    ItemStack sourceItem = sourceInventory.getStackInSlot(i);
+                for (int i = 0; i < sourceInventory.getContainerSize(); i++) {
+                    ItemStack sourceItem = sourceInventory.getItem(i);
                     if (!sourceItem.isEmpty() && matchName.equals(sourceItem.getItem().getRegistryName())) {
                         int itemCount = Math.min(desiredItemCount, sourceItem.getCount());
                         item.setCount(item.getCount() + itemCount);
                         sourceItem.setCount(sourceItem.getCount() - itemCount);
                         if (sourceItem.isEmpty()) {
-                            sourceInventory.markDirty();
+                            sourceInventory.setChanged();
                         }
                         break;
                     }
@@ -114,23 +114,23 @@ public class ItemFilterEntity extends HopperTileEntity {
     private void attemptToPush(ItemStack item, IInventory destinationInventory) {
         if (!item.isEmpty() && item.isStackable() && item.getCount() > 1) {
             ResourceLocation matchName = item.getItem().getRegistryName();
-            for (int i = 0; i < destinationInventory.getSizeInventory(); i++) {
-                ItemStack destItem = destinationInventory.getStackInSlot(i);
+            for (int i = 0; i < destinationInventory.getContainerSize(); i++) {
+                ItemStack destItem = destinationInventory.getItem(i);
                 if (destItem.isEmpty() || matchName.equals(destItem.getItem().getRegistryName())) {
                     int itemCount = Math.min(destItem.getMaxStackSize() - destItem.getCount(), item.getCount() - 1);
                     if (itemCount > 0) {
                         if (destItem.isEmpty()) {
-                            destinationInventory.setInventorySlotContents(i, item.copy());
-                            destItem = destinationInventory.getStackInSlot(i);
+                            destinationInventory.setItem(i, item.copy());
+                            destItem = destinationInventory.getItem(i);
                             destItem.setCount(itemCount);
-                            markDirty();
+                            setChanged();
                         } else {
                             destItem.setCount(destItem.getCount() + itemCount);
                         }
 
                         item.setCount(item.getCount() - itemCount);
                         if (destItem.isEmpty()) {
-                            destinationInventory.markDirty();
+                            destinationInventory.setChanged();
                         }
                         break;
                     }
@@ -157,22 +157,24 @@ public class ItemFilterEntity extends HopperTileEntity {
 //        return new HopperContainer(p_213906_1_, p_213906_2_, this);
 //    }
 
-    @Nullable
     private IInventory getInventoryToPushItemsTo() {
-        Direction direction = this.getBlockState().get(HopperBlock.FACING);
+//        Direction direction = this.getBlockState().get(HopperBlock.FACING);
+        Direction direction = this.getBlockState().getValue(HopperBlock.FACING);
         if (isCorner) {
             direction = Direction.DOWN;
         }
-        return getInventoryAtPosition(this.getWorld(), this.pos.offset(direction));
+
+        return getContainerAt(getLevel(), getBlockPos().offset(direction.getNormal()));
+//        return getInventoryAtPosition(this.getWorld(), this.getBlockPos().offset(direction.getNormal()));
     }
 
-    @Nullable
     private IInventory getInventoryToPullItemsFrom() {
-        Direction direction = this.getBlockState().get(HopperBlock.FACING).getOpposite();
+        Direction direction = this.getBlockState().getValue(HopperBlock.FACING).getOpposite();
         if (isCorner) {
             direction = direction.getOpposite();
         }
-        return getInventoryAtPosition(this.getWorld(), this.pos.offset(direction));
+        return getContainerAt(getLevel(), getBlockPos().offset(direction.getNormal()));
+//        return getInventoryAtPosition(this.getWorld(), this.getBlockPos().offset(direction.getNormal()));
     }
 
 }

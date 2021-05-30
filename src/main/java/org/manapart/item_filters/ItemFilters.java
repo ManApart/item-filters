@@ -1,17 +1,11 @@
 package org.manapart.item_filters;
 
-import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.ForgeRegistries;
 
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod(ItemFilters.MODID)
 @Mod.EventBusSubscriber(modid = ItemFilters.MODID)
 public class ItemFilters {
@@ -26,36 +20,6 @@ public class ItemFilters {
 
     public ItemFilters() {
         MinecraftForge.EVENT_BUS.register(this);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerBlocks);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerItems);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerEntities);
-    }
-
-    @SubscribeEvent
-    public void registerBlocks(RegistryEvent.Register<Block> event) {
-        if (!ForgeRegistries.BLOCKS.containsKey(itemFilterBlock.getRegistryName())) {
-            System.out.println("Registering blocks");
-            ForgeRegistries.BLOCKS.register(itemFilterBlock);
-            ForgeRegistries.BLOCKS.register(itemFilterCornerBlock);
-        }
-    }
-
-    @SubscribeEvent
-    public void registerItems(RegistryEvent.Register<Item> event) {
-        if (!ForgeRegistries.ITEMS.containsKey(itemFilterItem.getRegistryName())) {
-            System.out.println("Registering items");
-            ForgeRegistries.ITEMS.register(itemFilterItem);
-            ForgeRegistries.ITEMS.register(itemFilterCornerItem);
-            ForgeRegistries.ITEMS.register(itemFiltersIcon);
-        }
-    }
-
-    @SubscribeEvent
-    public void registerEntities(RegistryEvent.Register<TileEntityType<?>> event) {
-//        if (!ForgeRegistries.TILE_ENTITIES.containsKey(tileType.getRegistryName())) {
-            System.out.println("Registering TileEntityTypes");
-            ForgeRegistries.TILE_ENTITIES.register(tileType);
-//        }
     }
 
     private static Item createIcon() {
@@ -89,7 +53,7 @@ public class ItemFilters {
     }
 
     private static TileEntityType<ItemFilterEntity> createEntityType(ItemFilterBlock block) {
-        TileEntityType.Builder<ItemFilterEntity> builder = TileEntityType.Builder.create(ItemFilterEntity::new, itemFilterBlock, itemFilterCornerBlock);
+        TileEntityType.Builder<ItemFilterEntity> builder = TileEntityType.Builder.of(ItemFilterEntity::new, itemFilterBlock, itemFilterCornerBlock);
         TileEntityType<ItemFilterEntity> tileType = builder.build(null);
         tileType.setRegistryName(MODID, "item_filter");
         return tileType;
