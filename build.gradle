@@ -19,7 +19,7 @@ archivesBaseName = 'item_filters'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 minecraft {
-    mappings channel: 'snapshot', version: '20200225-1.15.1'
+    mappings channel: 'official', version: minecraft_version
     runs {
         client {
             workingDirectory = project.file('run').canonicalPath
@@ -42,7 +42,7 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.15.2-31.1.77'
+    minecraft 'net.minecraftforge:forge:' + minecraft_version + '-' + forge_version
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
