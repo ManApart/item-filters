@@ -6,7 +6,7 @@ issueTrackerURL="https://github.com/ManApart/item-filters/issues"
 [[mods]]
     modId="item_filters"
     version="1.0"
-    displayName="Jump Pads"
+    displayName="Item Filters"
 	authors="ManApart"
     description='''
     Hopper like item that will take only the items in its gui screen
