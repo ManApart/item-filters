@@ -93,17 +93,17 @@ public class ItemFilterEntity extends HopperTileEntity {
         }
     }
 
-    private void attemptToPull(ItemStack item, IInventory sourceInventory) {
-        if (!item.isEmpty() && item.isStackable()) {
-            int desiredItemCount = item.getMaxStackSize() - item.getCount();
+    private void attemptToPull(ItemStack lookedForItem, IInventory sourceInventory) {
+        if (!lookedForItem.isEmpty() && lookedForItem.isStackable()) {
+            int desiredItemCount = lookedForItem.getMaxStackSize() - lookedForItem.getCount();
             if (desiredItemCount > 0) {
-                ResourceLocation matchName = item.getItem().getRegistryName();
+                ResourceLocation matchName = lookedForItem.getItem().getRegistryName();
                 //Transfer first stack that matches this item
                 for (int i = 0; i < sourceInventory.getContainerSize(); i++) {
                     ItemStack sourceItem = sourceInventory.getItem(i);
                     if (!sourceItem.isEmpty() && matchName.equals(sourceItem.getItem().getRegistryName())) {
                         int itemCount = Math.min(desiredItemCount, sourceItem.getCount());
-                        item.setCount(item.getCount() + itemCount);
+                        lookedForItem.setCount(lookedForItem.getCount() + itemCount);
                         sourceItem.setCount(sourceItem.getCount() - itemCount);
                         if (sourceItem.isEmpty()) {
                             sourceInventory.setChanged();
@@ -115,16 +115,16 @@ public class ItemFilterEntity extends HopperTileEntity {
         }
     }
 
-    private void attemptToPush(ItemStack item, IInventory destinationInventory) {
-        if (!item.isEmpty() && item.isStackable() && item.getCount() > 1) {
-            ResourceLocation matchName = item.getItem().getRegistryName();
+    private void attemptToPush(ItemStack itemToPush, IInventory destinationInventory) {
+        if (!itemToPush.isEmpty() && itemToPush.isStackable() && itemToPush.getCount() > 1) {
+            ResourceLocation matchName = itemToPush.getItem().getRegistryName();
             for (int i = 0; i < destinationInventory.getContainerSize(); i++) {
                 ItemStack destItem = destinationInventory.getItem(i);
                 if (destItem.isEmpty() || matchName.equals(destItem.getItem().getRegistryName())) {
-                    int itemCount = Math.min(destItem.getMaxStackSize() - destItem.getCount(), item.getCount() - 1);
+                    int itemCount = Math.min(destItem.getMaxStackSize() - destItem.getCount(), itemToPush.getCount() - 1);
                     if (itemCount > 0) {
                         if (destItem.isEmpty()) {
-                            destinationInventory.setItem(i, item.copy());
+                            destinationInventory.setItem(i, itemToPush.copy());
                             destItem = destinationInventory.getItem(i);
                             destItem.setCount(itemCount);
                             setChanged();
@@ -132,7 +132,7 @@ public class ItemFilterEntity extends HopperTileEntity {
                             destItem.setCount(destItem.getCount() + itemCount);
                         }
 
-                        item.setCount(item.getCount() - itemCount);
+                        itemToPush.setCount(itemToPush.getCount() - itemCount);
                         if (destItem.isEmpty()) {
                             destinationInventory.setChanged();
                         }
