@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.HopperTileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -20,7 +21,7 @@ import javax.annotation.Nullable;
 
 
 public class ItemFilterEntity extends HopperTileEntity {
-
+    private NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
     private int transferCooldown = -1;
     private boolean isCorner = false;
 
@@ -178,7 +179,15 @@ public class ItemFilterEntity extends HopperTileEntity {
     }
 
     protected Container createMenu(int p_createMenu_1_, PlayerInventory inventory) {
-        return ChestContainer.threeRows(p_createMenu_1_, inventory);
+        return ChestContainer.threeRows(p_createMenu_1_, inventory, this);
+    }
+
+    protected NonNullList<ItemStack> getItems() {
+        return this.items;
+    }
+
+    protected void setItems(NonNullList<ItemStack> p_199721_1_) {
+        this.items = p_199721_1_;
     }
 
 }
