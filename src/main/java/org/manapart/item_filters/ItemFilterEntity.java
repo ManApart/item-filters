@@ -2,7 +2,11 @@ package org.manapart.item_filters;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HopperBlock;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.ChestContainer;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.HopperContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.HopperTileEntity;
@@ -153,10 +157,6 @@ public class ItemFilterEntity extends HopperTileEntity {
         return this.transferCooldown > 0;
     }
 
-//    protected Container createMenu(int p_213906_1_, PlayerInventory p_213906_2_) {
-//        return new HopperContainer(p_213906_1_, p_213906_2_, this);
-//    }
-
     private IInventory getInventoryToPushItemsTo() {
 //        Direction direction = this.getBlockState().get(HopperBlock.FACING);
         Direction direction = this.getBlockState().getValue(HopperBlock.FACING);
@@ -175,6 +175,10 @@ public class ItemFilterEntity extends HopperTileEntity {
         }
         return getContainerAt(getLevel(), getBlockPos().offset(direction.getNormal()));
 //        return getInventoryAtPosition(this.getWorld(), this.getBlockPos().offset(direction.getNormal()));
+    }
+
+    protected Container createMenu(int p_createMenu_1_, PlayerInventory inventory) {
+        return ChestContainer.threeRows(p_createMenu_1_, inventory);
     }
 
 }
